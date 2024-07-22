@@ -10,6 +10,12 @@
   Usage:
   {% render 'buy-buttons', block: block, product: product, product_form_id: product_form_id, section_id: section.id, show_pickup_availability: true %}
 {% endcomment %}
+
+{% assign is_preorder = false %}
+{% if product.selected_or_first_available_variant.inventory_quantity < 1 and product.selected_or_first_available_variant.available %}
+  {%  assign is_preorder = true %}
+{% endif %}  
+
 <div {{ block.shopify_attributes }}>
   {%- if product != blank -%}
     {%- liquid
@@ -63,12 +69,17 @@
           {% endif %}
           class="product-variant-id"
         >
+        <input
+          type="hidden"
+          name="properties[{{ 'products.product.preorder' | t  }}]"
+          value="{%- if is_preorder -%}{{ 'products.product.preorder_note' | t }}{%- endif -%}"
+        >
 
         {%- if gift_card_recipient_feature_active -%}
           {%- render 'gift-card-recipient-form', product: product, form: form, section: section -%}
         {%- endif -%}
 
-        <div class="product-form__buttons">
+        <div class="product-form__buttons">          
           {%- liquid
             assign check_against_inventory = true
             if product.selected_or_first_available_variant.inventory_management != 'shopify' or product.selected_or_first_available_variant.inventory_policy == 'continue'
@@ -93,6 +104,8 @@
             <span>
               {%- if product.selected_or_first_available_variant == nil -%}
                 {{ 'products.product.unavailable' | t }}
+              {%- elsif is_preorder -%} 
+                {{ 'products.product.preorder' | t }}
               {%- elsif product.selected_or_first_available_variant.available == false or quantity_rule_soldout -%}
                 {{ 'products.product.sold_out' | t }}
               {%- else -%}
@@ -101,6 +114,11 @@
             </span>
             {%- render 'loading-spinner' -%}
           </button>
+          <p 
+            class="product-form__preorder-notes{% unless is_preorder %} hidden{% endunless %}"
+            data-preorder-note>
+            {{ 'products.product.preorder_note' | t }}
+          </p>
           {%- if show_dynamic_checkout -%}
             {{ form | payment_button }}
           {%- endif -%}

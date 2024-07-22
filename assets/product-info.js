@@ -142,6 +142,16 @@ if (!customElements.get('product-info')) {
         return !!selectedVariant ? JSON.parse(selectedVariant) : null;
       }
 
+      getSelectedVariantInventoryPolicy(productInfoNode) {
+        const selectedVariantInventoryPolicy = productInfoNode.querySelector('variant-selects [data-selected-variant-inventory-policy]')?.innerHTML;
+        return !!selectedVariantInventoryPolicy ? selectedVariantInventoryPolicy : null;
+      }
+
+      getSelectedVariantQuantity(productInfoNode) {
+        const selectedVariantQuantity = productInfoNode.querySelector('variant-selects [data-selected-variant-inventory-quantity]')?.innerHTML;
+        return !!selectedVariantQuantity ? parseInt(selectedVariantQuantity) : null;
+      }
+
       buildRequestUrlWithParams(url, optionValues, shouldFetchFullPage = false) {
         const params = [];
 
@@ -161,14 +171,35 @@ if (!customElements.get('product-info')) {
         }
       }
 
+      updatePreorderNote(isPreorder) {
+        const preOrderNote = document.querySelector('[data-preorder-note]');
+        if (isPreorder) {
+          preOrderNote.classList.remove('hidden');
+        } else {
+          preOrderNote.classList.add('hidden');
+        } 
+      }
+
       handleUpdateProductInfo(productUrl) {
         return (html) => {
           const variant = this.getSelectedVariant(html);
+          const variantQuantity = this.getSelectedVariantQuantity(html);
+          const variantInventoryPolicy = this.getSelectedVariantInventoryPolicy(html);
+          let isPreorder = false
+          let variantPreorderInputValue = '';
 
           this.pickupAvailability?.update(variant);
           this.updateOptionValues(html);
           this.updateURL(productUrl, variant?.id);
           this.updateVariantInputs(variant?.id);
+
+          if (variantQuantity < 1 && variantInventoryPolicy === '"continue"') {
+            variantPreorderInputValue = window.variantStrings.preorderNote;
+            isPreorder = true;
+          }
+
+          this.updatePreorderInputs(variantPreorderInputValue);  
+          this.updatePreorderNote(isPreorder);  
 
           if (!variant) {
             this.setUnavailable();
@@ -191,14 +222,15 @@ if (!customElements.get('product-info')) {
           updateSourceFromDestination('Inventory', ({ innerText }) => innerText === '');
           updateSourceFromDestination('Volume');
           updateSourceFromDestination('Price-Per-Item', ({ classList }) => classList.contains('hidden'));
-
+  
           this.updateQuantityRules(this.sectionId, html);
           this.querySelector(`#Quantity-Rules-${this.dataset.section}`)?.classList.remove('hidden');
           this.querySelector(`#Volume-Note-${this.dataset.section}`)?.classList.remove('hidden');
-
+          
           this.productForm?.toggleSubmitButton(
             html.getElementById(`ProductSubmitButton-${this.sectionId}`)?.hasAttribute('disabled') ?? true,
-            window.variantStrings.soldOut
+            window.variantStrings.soldOut,
+            isPreorder
           );
 
           publish(PUB_SUB_EVENTS.variantChange, {
@@ -219,6 +251,13 @@ if (!customElements.get('product-info')) {
           input.value = variantId ?? '';
           input.dispatchEvent(new Event('change', { bubbles: true }));
         });
+      }
+
+      updatePreorderInputs(variantPreorderNote) {
+        const selectorName = `properties[${window.variantStrings.preorder}]`;
+        const input = document.querySelector(`input[name="${selectorName}"]`);
+        input.value = variantPreorderNote ?? '';
+        input.dispatchEvent(new Event('change', { bubbles: true }));
       }
 
       updateURL(url, variantId) {
