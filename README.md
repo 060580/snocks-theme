@@ -1,5 +1,16 @@
 # Preorder sold out products in Shopify Theme Dawn
 
+##Demo links
+###Sold out Preorder Product:
+https://060580-development.myshopify.com/products/socke
+
+###Product with Variants:
+https://060580-development.myshopify.com/products/unterhose
+
+* S: available
+* M: sold out
+* L: Preorder available
+
 ## Changed Files 
 layout/theme.liquid
 snippets/buy-buttons.liquid
