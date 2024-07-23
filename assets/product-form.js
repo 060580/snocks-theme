@@ -115,10 +115,13 @@ if (!customElements.get('product-form')) {
         }
       }
 
-      toggleSubmitButton(disable = true, text) {
+      toggleSubmitButton(disable = true, text, isPreorder = false) {
         if (disable) {
           this.submitButton.setAttribute('disabled', 'disabled');
-          if (text) this.submitButtonText.textContent = text;
+          if (text) this.submitButtonText.textContent = text; 
+        } else if (isPreorder) {
+          this.submitButton.removeAttribute('disabled');
+          this.submitButtonText.textContent = window.variantStrings.preorder   
         } else {
           this.submitButton.removeAttribute('disabled');
           this.submitButtonText.textContent = window.variantStrings.addToCart;
