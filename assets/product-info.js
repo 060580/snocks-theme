@@ -171,7 +171,7 @@ if (!customElements.get('product-info')) {
         }
       }
 
-      updatePreorderNote(isPreorder) {
+      togglePreorderNote(isPreorder) {
         const preOrderNote = document.querySelector('[data-preorder-note]');
         if (isPreorder) {
           preOrderNote.classList.remove('hidden');
@@ -199,7 +199,7 @@ if (!customElements.get('product-info')) {
           }
 
           this.updatePreorderInputs(variantPreorderInputValue);  
-          this.updatePreorderNote(isPreorder);  
+          this.togglePreorderNote(isPreorder);  
 
           if (!variant) {
             this.setUnavailable();
@@ -222,11 +222,11 @@ if (!customElements.get('product-info')) {
           updateSourceFromDestination('Inventory', ({ innerText }) => innerText === '');
           updateSourceFromDestination('Volume');
           updateSourceFromDestination('Price-Per-Item', ({ classList }) => classList.contains('hidden'));
-  
+
           this.updateQuantityRules(this.sectionId, html);
           this.querySelector(`#Quantity-Rules-${this.dataset.section}`)?.classList.remove('hidden');
           this.querySelector(`#Volume-Note-${this.dataset.section}`)?.classList.remove('hidden');
-          
+
           this.productForm?.toggleSubmitButton(
             html.getElementById(`ProductSubmitButton-${this.sectionId}`)?.hasAttribute('disabled') ?? true,
             window.variantStrings.soldOut,
