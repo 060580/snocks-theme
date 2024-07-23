@@ -11,6 +11,11 @@ https://060580-development.myshopify.com/products/unterhose
 * M: sold out
 * L: Preorder available
 
+###Creditcard 
+* Creditcard Number: 1
+* Valid until: any date in the future
+* CVV: any random three digit number 
+
 ## Changed Files 
 layout/theme.liquid
 snippets/buy-buttons.liquid
